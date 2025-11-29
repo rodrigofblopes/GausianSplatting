@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gaussian Splatting - gs_Autismo.ply</title>
+  <script type="importmap">
+    {
+        "imports": {
+            "three": "./lib/three.module.js",
+            "@mkkellogg/gaussian-splats-3d": "./lib/gaussian-splats-3d.module.js"
+        }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #000000;
+      height: 100vh;
+      margin: 0px;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+    #status {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      z-index: 1000;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="status">Carregando gs_Autismo.ply...</div>
+
+  <script type="module">
+    import * as GaussianSplats3D from '@mkkellogg/gaussian-splats-3d';
+    import * as THREE from 'three';
+
+    const statusDiv = document.getElementById('status');
+    let viewer = null;
+    let currentControls = null;
+
+    // Configurações iniciais - Vista aérea como na imagem
+    const initialConfig = {
+      posX: 8,      // Posição lateral para vista aérea
+      posY: 12,     // Altura elevada para vista aérea
+      posZ: 8,      // Distância para vista aérea
+      targetX: 0,   // Olha para o centro
+      targetY: 0,   // Olha para o centro
+      targetZ: 0,   // Olha para o centro
+      rotY: 90,
+      fov: 50,
+      rotSpeed: 1.0,
+      zoomSpeed: 1.0,
+      panSpeed: 1.0
+    };
+
+
+    function updateStatus(message) {
+      statusDiv.textContent = message;
+    }
+
+    // Nível mínimo do solo (altura mínima da câmera) - Vista aérea travada
+    const GROUND_LEVEL = 8; // Altura mínima para manter vista aérea (não ver parte de baixo)
+
+    // Configuração do viewer
+    const viewerOptions = {
+      'cameraUp': [0, 1, 0],
+      'initialCameraPosition': [
+        initialConfig.posX, 
+        initialConfig.posY, 
+        initialConfig.posZ
+      ],
+      'initialCameraLookAt': [0, 0, 0],
+      'halfPrecisionCovariancesOnGPU': false,
+      'antialiased': true,
+      'splatRenderMode': GaussianSplats3D.SplatRenderMode.ThreeD,
+      'sphericalHarmonicsDegree': 0
+    };
+
+    try {
+      updateStatus('Inicializando viewer...');
+      viewer = new GaussianSplats3D.Viewer(viewerOptions);
+      
+      updateStatus('Carregando gs_Autismo.ply...');
+      
+      // Rotação inicial
+      const rotYDegrees = initialConfig.rotY;
+      const rotationY = new THREE.Quaternion();
+      rotationY.setFromAxisAngle(new THREE.Vector3(0, 1, 0), (rotYDegrees * Math.PI) / 180);
+      
+      viewer.addSplatScene('gs_Autismo.ply', {
+        'splatAlphaRemovalThreshold': 1,
+        'progressiveLoad': false,
+        'rotation': [rotationY.w, rotationY.x, rotationY.y, rotationY.z]
+      })
+        .then(() => {
+          updateStatus('✓ Carregado!');
+          setTimeout(() => {
+            statusDiv.style.opacity = '0.5';
+          }, 3000);
+          
+          viewer.start();
+          
+          // Configura controles
+          const configureControls = () => {
+            const controlsToUpdate = [];
+            
+            if (viewer.perspectiveControls) controlsToUpdate.push(viewer.perspectiveControls);
+            if (viewer.orthographicControls) controlsToUpdate.push(viewer.orthographicControls);
+            if (viewer.controls) controlsToUpdate.push(viewer.controls);
+            
+            if (controlsToUpdate.length > 0) {
+              controlsToUpdate.forEach(controls => {
+                currentControls = controls;
+                
+                // Limita o ângulo polar para manter vista aérea (não olhar muito para baixo)
+                // Math.PI/2 = 90° (horizontal), valores menores = mais para cima
+                controls.minPolarAngle = 0.01; // Não olha para cima
+                controls.maxPolarAngle = Math.PI / 2.2; // Limita para não olhar muito para baixo (~82°)
+                controls.minAzimuthAngle = -Infinity;
+                controls.maxAzimuthAngle = Infinity;
+                
+                // Configurações de controle
+                controls.enableRotate = true;
+                controls.rotateSpeed = initialConfig.rotSpeed;
+                controls.enableZoom = true;
+                controls.zoomSpeed = initialConfig.zoomSpeed;
+                controls.enablePan = true;
+                controls.panSpeed = 1.0;
+                
+                // Suavização
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.05;
+                
+                // Intercepta o método update para travar a câmera na altura mínima
+                const originalUpdate = controls.update.bind(controls);
+                controls.update = function() {
+                  originalUpdate();
+                  
+                  // Garante que a câmera não vá abaixo da altura mínima (vista aérea)
+                  if (viewer && viewer.camera) {
+                    if (viewer.camera.position.y < GROUND_LEVEL) {
+                      viewer.camera.position.y = GROUND_LEVEL;
+                    }
+                    
+                    // Também limita o target Y para não olhar muito para baixo
+                    if (controls.target.y < -2) {
+                      controls.target.y = -2;
+                    }
+                  }
+                };
+                
+                console.log('✓ Controles configurados (câmera travada em vista aérea)');
+              });
+              return true;
+            }
+            return false;
+          };
+          
+          if (!configureControls()) {
+            let attempts = 0;
+            const checkInterval = setInterval(() => {
+              attempts++;
+              if (configureControls() || attempts >= 50) {
+                clearInterval(checkInterval);
+              }
+            }, 100);
+          }
+        })
+        .catch((error) => {
+          console.error('❌ Erro ao carregar:', error);
+          updateStatus('Erro ao carregar arquivo. Verifique o console.');
+        });
+    } catch (error) {
+      console.error('❌ Erro ao inicializar:', error);
+      updateStatus('Erro ao inicializar. Verifique o console.');
+    }
+  </script>
+</body>
+</html>
