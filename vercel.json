@@ -13,12 +13,6 @@
       "destination": "/viewer.html"
     }
   ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
-    }
-  ],
   "headers": [
     {
       "source": "/(.*\\.js)",

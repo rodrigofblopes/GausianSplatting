@@ -3,21 +3,26 @@ const path = require('path');
 const { execSync } = require('child_process');
 
 console.log('🚀 Iniciando build para Vercel...');
+console.log('📂 Diretório atual:', process.cwd());
 
 // Detecta o sistema operacional
 const isWindows = process.platform === 'win32';
+console.log('🖥️ Sistema operacional:', isWindows ? 'Windows' : 'Linux/Mac');
 
 // Executa o build do GaussianSplats3D
-console.log('📦 Instalando dependências do GaussianSplats3D...');
-process.chdir(path.join(__dirname, '../GaussianSplats3D'));
+const gaussianPath = path.join(__dirname, '../GaussianSplats3D');
+console.log('📦 Instalando dependências do GaussianSplats3D em:', gaussianPath);
+
+if (!fs.existsSync(gaussianPath)) {
+  throw new Error(`Diretório GaussianSplats3D não encontrado: ${gaussianPath}`);
+}
+
+process.chdir(gaussianPath);
 execSync('npm install', { stdio: 'inherit' });
 
 console.log('🔨 Compilando bibliotecas...');
-if (isWindows) {
-  execSync('npm run build-windows', { stdio: 'inherit' });
-} else {
-  execSync('npm run build', { stdio: 'inherit' });
-}
+// No Vercel (Linux), usa build padrão
+execSync('npm run build', { stdio: 'inherit' });
 
 // Volta para a raiz
 process.chdir(path.join(__dirname, '..'));
@@ -29,22 +34,43 @@ const indexHtml = path.join(__dirname, '../index.html');
 const targetViewer = path.join(buildDir, 'viewer.html');
 const targetIndex = path.join(buildDir, 'index.html');
 
+console.log('📁 Verificando diretórios...');
+console.log('  Build dir:', buildDir);
+console.log('  Viewer HTML:', viewerHtml);
+console.log('  Index HTML:', indexHtml);
+
 // Garante que o diretório existe
 if (!fs.existsSync(buildDir)) {
+  console.log('⚠️ Criando diretório build/demo...');
   fs.mkdirSync(buildDir, { recursive: true });
 }
 
-// Copia viewer.html
-if (fs.existsSync(viewerHtml)) {
-  fs.copyFileSync(viewerHtml, targetViewer);
-  console.log('✓ viewer.html copiado para build/demo');
+// Verifica se os arquivos existem antes de copiar
+if (!fs.existsSync(viewerHtml)) {
+  throw new Error(`viewer.html não encontrado em: ${viewerHtml}`);
 }
 
+if (!fs.existsSync(indexHtml)) {
+  throw new Error(`index.html não encontrado em: ${indexHtml}`);
+}
+
+// Copia viewer.html
+fs.copyFileSync(viewerHtml, targetViewer);
+console.log('✓ viewer.html copiado para build/demo');
+
 // Copia index.html
-if (fs.existsSync(indexHtml)) {
-  fs.copyFileSync(indexHtml, targetIndex);
-  console.log('✓ index.html copiado para build/demo');
+fs.copyFileSync(indexHtml, targetIndex);
+console.log('✓ index.html copiado para build/demo');
+
+// Verifica se os arquivos foram copiados
+if (!fs.existsSync(targetViewer)) {
+  throw new Error('Falha ao copiar viewer.html');
+}
+
+if (!fs.existsSync(targetIndex)) {
+  throw new Error('Falha ao copiar index.html');
 }
 
 console.log('✅ Build concluído com sucesso!');
+console.log('📦 Arquivos em:', buildDir);
 
