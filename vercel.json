@@ -4,6 +4,16 @@
   "outputDirectory": "GaussianSplats3D/build/demo",
   "installCommand": "npm install",
   "framework": null,
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/viewer",
+      "destination": "/viewer.html"
+    }
+  ],
   "routes": [
     {
       "src": "/(.*)",

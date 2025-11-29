@@ -22,10 +22,12 @@ if (isWindows) {
 // Volta para a raiz
 process.chdir(path.join(__dirname, '..'));
 
-// Copia viewer.html para a pasta de build
+// Copia viewer.html e index.html para a pasta de build
 const buildDir = path.join(__dirname, '../GaussianSplats3D/build/demo');
 const viewerHtml = path.join(__dirname, '../viewer.html');
+const indexHtml = path.join(__dirname, '../index.html');
 const targetViewer = path.join(buildDir, 'viewer.html');
+const targetIndex = path.join(buildDir, 'index.html');
 
 // Garante que o diretório existe
 if (!fs.existsSync(buildDir)) {
@@ -36,6 +38,12 @@ if (!fs.existsSync(buildDir)) {
 if (fs.existsSync(viewerHtml)) {
   fs.copyFileSync(viewerHtml, targetViewer);
   console.log('✓ viewer.html copiado para build/demo');
+}
+
+// Copia index.html
+if (fs.existsSync(indexHtml)) {
+  fs.copyFileSync(indexHtml, targetIndex);
+  console.log('✓ index.html copiado para build/demo');
 }
 
 console.log('✅ Build concluído com sucesso!');
