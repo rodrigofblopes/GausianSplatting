@@ -1,0 +1,20 @@
+{
+  "name": "gaussian-splats-viewer",
+  "version": "1.0.0",
+  "description": "Gaussian Splatting 3D Viewer",
+  "scripts": {
+    "build": "node scripts/copy-files.js",
+    "vercel-build": "npm run build"
+  },
+  "keywords": [
+    "gaussian-splatting",
+    "3d",
+    "viewer"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.x"
+  }
+}
+

@@ -41,3 +41,13 @@ A câmera está configurada para:
 
 Para modificar o visualizador, edite `viewer.html` e execute `run.bat` novamente.
 
+## 🚀 Deploy no Vercel
+
+O projeto está configurado para deploy automático no Vercel:
+
+1. Conecte seu repositório GitHub ao Vercel
+2. O Vercel detectará automaticamente a configuração em `vercel.json`
+3. O build será executado automaticamente a cada push
+
+**Nota:** O arquivo `gs_Autismo.ply` precisa ser adicionado manualmente na pasta `GaussianSplats3D/build/demo/` após o deploy, ou hospedado em outro serviço e referenciado no código.
+
