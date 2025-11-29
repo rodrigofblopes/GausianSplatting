@@ -3,7 +3,7 @@
   "buildCommand": "npm run vercel-build",
   "outputDirectory": "GaussianSplats3D/build/demo",
   "installCommand": "npm install",
-  "framework": null,
+  "framework": "other",
   "rewrites": [
     {
       "source": "/",
