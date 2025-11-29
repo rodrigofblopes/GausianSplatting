@@ -2,6 +2,8 @@
   "version": 2,
   "buildCommand": "npm run vercel-build",
   "outputDirectory": "GaussianSplats3D/build/demo",
+  "installCommand": "npm install",
+  "framework": null,
   "routes": [
     {
       "src": "/(.*)",
@@ -10,19 +12,15 @@
   ],
   "headers": [
     {
-      "source": "/(.*)",
+      "source": "/(.*\\.js)",
       "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Access-Control-Allow-Methods",
-          "value": "GET, OPTIONS"
-        },
         {
           "key": "Content-Type",
           "value": "application/javascript"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
         }
       ]
     },
@@ -32,6 +30,10 @@
         {
           "key": "Content-Type",
           "value": "application/octet-stream"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
         }
       ]
     }
