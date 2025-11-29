@@ -2,6 +2,10 @@
 node_modules/
 package-lock.json
 
+# Large model files (use Git LFS or host separately)
+*.ply
+gs_Autismo.ply
+
 # Build outputs
 GaussianSplats3D/build/
 GaussianSplats3D/node_modules/

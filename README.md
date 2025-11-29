@@ -4,9 +4,12 @@ Visualizador 3D para modelos Gaussian Splatting com suporte para arquivos `.ply`
 
 ## 🚀 Como usar
 
-1. Execute o script `run.bat` para compilar e iniciar o servidor
-2. Acesse `http://localhost:8080/viewer.html` no navegador
-3. O modelo `gs_Autismo.ply` será carregado automaticamente
+1. Coloque o arquivo `gs_Autismo.ply` na pasta raiz do projeto
+2. Execute o script `run.bat` para compilar e iniciar o servidor
+3. Acesse `http://localhost:8080/viewer.html` no navegador
+4. O modelo `gs_Autismo.ply` será carregado automaticamente
+
+**Nota:** O arquivo `gs_Autismo.ply` não está incluído no repositório devido ao tamanho. Você precisa adicioná-lo manualmente na pasta raiz.
 
 ## 📋 Requisitos
 
