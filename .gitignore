@@ -2,9 +2,8 @@
 node_modules/
 package-lock.json
 
-# Large model files (use Git LFS or host separately)
-*.ply
-gs_Autismo.ply
+# Large model files (now using Git LFS)
+# *.ply files are tracked via Git LFS (see .gitattributes)
 
 # Build outputs
 GaussianSplats3D/build/

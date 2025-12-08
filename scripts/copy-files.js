@@ -27,17 +27,20 @@ execSync('npm run build', { stdio: 'inherit' });
 // Volta para a raiz
 process.chdir(path.join(__dirname, '..'));
 
-// Copia viewer.html e index.html para a pasta de build
+// Copia viewer.html, index.html e gs_Autismo.ply para a pasta de build
 const buildDir = path.join(__dirname, '../GaussianSplats3D/build/demo');
 const viewerHtml = path.join(__dirname, '../viewer.html');
 const indexHtml = path.join(__dirname, '../index.html');
+const plyFile = path.join(__dirname, '../gs_Autismo.ply');
 const targetViewer = path.join(buildDir, 'viewer.html');
 const targetIndex = path.join(buildDir, 'index.html');
+const targetPly = path.join(buildDir, 'gs_Autismo.ply');
 
 console.log('📁 Verificando diretórios...');
 console.log('  Build dir:', buildDir);
 console.log('  Viewer HTML:', viewerHtml);
 console.log('  Index HTML:', indexHtml);
+console.log('  PLY File:', plyFile);
 
 // Garante que o diretório existe
 if (!fs.existsSync(buildDir)) {
@@ -52,6 +55,14 @@ if (!fs.existsSync(viewerHtml)) {
 
 if (!fs.existsSync(indexHtml)) {
   throw new Error(`index.html não encontrado em: ${indexHtml}`);
+}
+
+if (!fs.existsSync(plyFile)) {
+  console.log('⚠️ Arquivo gs_Autismo.ply não encontrado. Continuando sem ele...');
+} else {
+  // Copia gs_Autismo.ply
+  fs.copyFileSync(plyFile, targetPly);
+  console.log('✓ gs_Autismo.ply copiado para build/demo');
 }
 
 // Copia viewer.html
@@ -69,6 +80,10 @@ if (!fs.existsSync(targetViewer)) {
 
 if (!fs.existsSync(targetIndex)) {
   throw new Error('Falha ao copiar index.html');
+}
+
+if (fs.existsSync(plyFile) && !fs.existsSync(targetPly)) {
+  throw new Error('Falha ao copiar gs_Autismo.ply');
 }
 
 console.log('✅ Build concluído com sucesso!');
